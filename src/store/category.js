@@ -1,4 +1,4 @@
-import {db, ref, push, update, onValue} from "@/firebase";
+import {db, ref, push, update, onValue, get, child} from "@/firebase";
 
 export default {
   state: {
@@ -16,18 +16,14 @@ export default {
     async fetchCategories({commit, dispatch}) {
       try {
         const uid = await dispatch('getUid')
-        const categoryRef = ref(db, `/users/${uid}/categories`);
-        onValue(categoryRef, (snapshot) => {
-          const categories = snapshot.val();
-          let ret = [];
-          if (categories) {
-            ret = Object.keys(categories).map(key => ({...categories[key], id: key}))
-            console.log('ret', ret);
-          }
-          commit('setCategories', ret)
-        });
-        //const categories = (await firebase.database().ref(`/users/${uid}/categories`).once('value')).val() || {}
-        //return Object.keys(categories).map(key => ({...categories[key], id: key}))
+        const dbRef = ref(db)
+        const snapshot = await get(child(dbRef, `/users/${uid}/categories`))
+        let categories = []
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          categories = Object.keys(data).map(key => ({...data[key], id: key}))
+        }
+        return categories
       } catch (e) {
         commit('setError', e)
         throw e

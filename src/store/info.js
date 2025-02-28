@@ -1,4 +1,4 @@
-import { child, db, ref, get, onValue } from '@/firebase.js'
+import { db, ref, onValue, update } from '@/firebase.js'
 
 export default {
   state: {
@@ -13,6 +13,18 @@ export default {
     }
   },
   actions: {
+    async updateInfo({dispatch, commit, getters}, toUpdate) {
+      try {
+        const uid = await dispatch('getUid')
+        const updateData = {...getters.info, ...toUpdate}
+        const userRef = ref(db, `/users/${uid}/info`);
+        await update(userRef, updateData)
+        commit('setInfo', updateData)
+      } catch (e) {
+        commit('setError', e)
+        throw e
+      }
+    },
     async fetchInfo({dispatch, commit}) {
       try {
         const uid = await dispatch('getUid')

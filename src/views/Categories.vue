@@ -27,30 +27,25 @@ import CategoryEdit from '@/components/CategoryEdit'
 export default {
   name: 'categories',
   data: () => ({
-    //categories: [],
+    categories: [],
     loading: true,
     updateCount: 0
   }),
   async mounted() {
-    await this.$store.dispatch('fetchCategories')
+    this.categories = await this.$store.dispatch('fetchCategories')
     this.loading = false
-  },
-  computed: {
-    categories() {
-      return this.$store.getters.categories
-    }
   },
   components: {
     CategoryCreate, CategoryEdit
   },
   methods: {
     addNewCategory(category) {
-      //this.categories.push(category)
+      this.categories.push(category)
     },
     updateCategories(category) {
-      //const idx = this.categories.findIndex(c => c.id === category.id)
-      //this.categories[idx].title = category.title
-      //this.categories[idx].limit = category.limit
+      const idx = this.categories.findIndex(c => c.id === category.id)
+      this.categories[idx].title = category.title
+      this.categories[idx].limit = category.limit
       this.updateCount++
     }
   }

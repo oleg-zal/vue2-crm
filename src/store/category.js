@@ -1,14 +1,6 @@
-import {db, ref, push, update, onValue, get, child} from "@/firebase";
+import {db, ref, push, update, get, child} from "@/firebase";
 
 export default {
-  state: {
-    categories: []
-  },
-  mutations: {
-    setCategories(state, categories) {
-      state.categories = categories
-    }
-  },
   getters: {
     categories: s => s.categories
   },
@@ -24,6 +16,25 @@ export default {
           categories = Object.keys(data).map(key => ({...data[key], id: key}))
         }
         return categories
+      } catch (e) {
+        commit('setError', e)
+        throw e
+      }
+    },
+    async fetchCategoryById({commit, dispatch}, id) {
+      try {
+        const uid = await dispatch('getUid')
+        const dbRef = ref(db)
+        const snapshot = await get(child(dbRef, `/users/${uid}/categories/${id}`))
+        let category = {}
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          category = {...data, id}
+        }
+        return category
+
+        /*const category = (await firebase.database().ref(`/users/${uid}/categories`).child(id).once('value')).val() || {}
+        return {...category, id}*/
       } catch (e) {
         commit('setError', e)
         throw e
